@@ -22,6 +22,8 @@ namespace WpfAppTest5
     /// </summary>
     public partial class MainWindow : Window
         {
+        public static string[] types;
+
         public MainWindow()
             {
             InitializeComponent();
@@ -32,7 +34,9 @@ namespace WpfAppTest5
             TextBoxSQL.Text = string.Empty;
             string SQL_str = string.Empty;
             string s = string.Empty;
-            bool TypesDetected = false; 
+            bool TypesDetected = false;
+            string MayBeName = string.Empty;
+
             for (int i = 0; i < TextBoxGraph.LineCount; i++)
                 {
                 for (int j = 0; j < TextBoxGraph.GetLineText(i).Length; j++)
@@ -55,15 +59,15 @@ namespace WpfAppTest5
                             {
                             //получим список полей
                             s = Regex.Replace(s, @"\s+", " ").Replace(" ", "");
-                            string[] strs = s.Substring(1, s.Length - 2).Split('|');
+                            string[] strs = s.Substring(1, s.Length - 2).Split('|');                           
                             //массив типов полей
-                            string[] types = new string[strs.Length];
+                            types = new string[strs.Length];
                             //если у таблицы есть хотя-бы одна строка, пробуем определить тип
-                            if (TextBoxGraph.LineCount > 5)
-                                {                               
+                            if ((TextBoxGraph.LineCount > 5) && (TextBoxGraph.GetLineText(i + 2).Length>3))
+                                {
                                 string LineTwo = Regex.Replace(TextBoxGraph.GetLineText(i+2), @"\s+", " ").Replace(" ", "");
                                 LineTwo = LineTwo.Substring(1, LineTwo.Length - 2).Trim().Replace("  ", " ");
-                                string[] s1 = LineTwo.Split('|');
+                                string[] s1 = LineTwo.Split('|');                             
                                 for (int t = 0; t < strs.Length; t++)
                                     {
                                     types[t] = "int";
@@ -71,16 +75,25 @@ namespace WpfAppTest5
                                     try
                                         { 
                                         bool isInt = int.TryParse(s1[t], out num);
-                                        if (isInt == false) types[t] = "varchar(50)"; 
+                                        if (isInt == false)
+                                            {
+                                            if (MayBeName == string.Empty) MayBeName = strs[t] + "s";
+                                            types[t] = "varchar(50)"; 
+                                            } 
                                         }
                                     catch
                                         { 
                                         }
-                                    if (s1[t].Contains(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator)) types[t] = "float";
+                                    if (s1[t].Contains(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator))
+                                        {
+                                        float number;
+                                        if (Single.TryParse(s1[t], out number)) types[t] = "float";
+                                        } 
                                     }
                                 }
                             //синтаксис создания таблицы 
-                            SQL_str = "create table ... (";
+                            if (MayBeName == string.Empty) MayBeName = "...";
+                            SQL_str = "create table " + MayBeName + " (";
                             for (int k = 0; k < strs.Length; k++)
                                 {                               
                                 SQL_str = SQL_str + strs[k].Replace("|", ", ") + " " + types[k];
@@ -88,24 +101,28 @@ namespace WpfAppTest5
                                 }
                             SQL_str += ")\n";
                             TypesDetected = true;
-                            }
-                        
+                            }                       
                         }
                     else
                         {
                         //вставка значений по полям
-                        s = Regex.Replace(s, @"\s+", " ").Replace(" ", "");
-                        s = s.Substring(1, s.Length - 2);
-                        if (SQL_str.Contains("select ")) SQL_str += "union all ";
-                        //текстовое поле должно быть в кавычках                      
-                        //for (int k = 0; k < strs.Length; k++)
-                        //    {
-                        //    string kav = "";
-                        //    if (types[k] == "varchar(50)") kav = "'";
-                        //    SQL_str = SQL_str + strs[k].Replace("|", ", ") + " " + types[k];
-                        //    if (k != strs.Length - 1) SQL_str += ", ";
-                        //    }
-                        SQL_str += "select (" + s.Replace("|", ",") + ")\n"; 
+                        string Line = Regex.Replace(s, @"\s+", " ").Replace(" ", "");
+                        Line = Line.Substring(1, Line.Length - 2).Trim().Replace("  ", " ");
+                        string[] s1 = Line.Split('|');
+                        string sline="";
+                        for (int t = 0; t < s1.Length; t++)
+                            {
+                            if (types[t] == "varchar(50)")
+                                {
+                                sline += "'" + s1[t] + "'";
+                                }
+                            else
+                                {
+                                sline += s1[t];
+                                }
+                            if (t != s1.Length-1) sline += ", ";
+                            }
+                        SQL_str += "select (" + sline + ")\n";
                         }
                         
                     } 
@@ -114,13 +131,23 @@ namespace WpfAppTest5
             TextBoxSQL.Text = SQL_str;
             }
 
+        private void InsertFromClibboard()
+            {
+            if ((Clipboard.GetText()!=String.Empty) && (TextBoxGraph.Text != Clipboard.GetText()) )
+                {
+                TextBoxGraph.Text = Clipboard.GetText();
+                Convert();
+                }
+            }
+
         private void TextBlockGraph_MouseEnter(object sender, MouseEventArgs e)
             {
-            if (TextBoxGraph.Text != Clipboard.GetText())
-                { 
-                TextBoxGraph.Text = Clipboard.GetText();
-                Convert();               
-                }         
+            InsertFromClibboard();
+            }
+
+        private void TextBoxGraph_DragOver(object sender, DragEventArgs e)
+            {
+            //InsertFromClibboard();
             }
         }
     }
