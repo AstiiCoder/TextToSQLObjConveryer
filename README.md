@@ -1,4 +1,4 @@
-# TextToSQLObjConveryer
+# TextToSQLObjConverter
 Converting a text representation of a table to a real table
 
 Who wants to practice on their server when solving problems from sites such as leetcode.com can use the text representation converter to MS SQL code (syntax ver. 2000)
