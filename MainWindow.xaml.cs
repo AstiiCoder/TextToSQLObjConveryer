@@ -100,6 +100,7 @@ namespace WpfAppTest5
                                 if (k != strs.Length - 1) SQL_str += ", ";
                                 }
                             SQL_str += ")\n";
+                            SQL_str += "insert into " + MayBeName + Environment.NewLine;
                             TypesDetected = true;
                             }                       
                         }
@@ -122,7 +123,8 @@ namespace WpfAppTest5
                                 }
                             if (t != s1.Length-1) sline += ", ";
                             }
-                        SQL_str += "select (" + sline + ")\n";
+                        if (SQL_str.Contains("select ")) SQL_str += "union all select " + sline + "\n";
+                        else SQL_str += "select " + sline + "\n";
                         }
                         
                     } 
