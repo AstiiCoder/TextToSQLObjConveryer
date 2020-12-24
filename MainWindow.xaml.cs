@@ -136,9 +136,20 @@ namespace WpfAppTest5
         private void InsertFromClibboard()
             {
             if ((Clipboard.GetText()!=String.Empty) && (TextBoxGraph.Text != Clipboard.GetText()) )
-                {
+                {               
+                TextBoxGraph.IsReadOnly = false;
+                TextBoxSQL.IsReadOnly = false;
                 TextBoxGraph.Text = Clipboard.GetText();
-                Convert();
+
+                //конвертирование в отдельном потоке
+                new Thread(() => 
+                {
+                   Action action = () =>
+                   {
+                       Convert();
+                   };
+                   Dispatcher.Invoke(action);                   
+                }).Start();
                 }
             }
 

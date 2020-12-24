@@ -13,8 +13,8 @@
             </ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" x:Name="TextBoxGraph" Text="вставьте сюда текст псевдотаблицы" MouseEnter="TextBlockGraph_MouseEnter" DragOver="TextBoxGraph_DragOver"/>
-        <TextBox Grid.Column="2" x:Name="TextBoxSQL" Text="Текст на языке SQL"/>
+        <TextBox Grid.Column="0" x:Name="TextBoxGraph" Text="вставьте сюда текст псевдотаблицы" IsReadOnly="True" MouseEnter="TextBlockGraph_MouseEnter" DragOver="TextBoxGraph_DragOver"/>
+        <TextBox Grid.Column="2" x:Name="TextBoxSQL" Text="текст на языке SQL" IsReadOnly="True"/>
 
     </Grid>
 </Window>
