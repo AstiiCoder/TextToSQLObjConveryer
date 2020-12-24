@@ -93,6 +93,18 @@ namespace WpfAppTest5
                                 }
                             //синтаксис создания таблицы 
                             if (MayBeName == string.Empty) MayBeName = "...";
+                            //запросим имя таблицы если не смогли определить
+                            if (MayBeName == "...")
+                                {
+                                TblNameWindow tblnameWindow = new TblNameWindow();
+
+                                if (tblnameWindow.ShowDialog() == true)
+                                    {
+                                    if (tblnameWindow.TblName != String.Empty)
+                                        MayBeName = tblnameWindow.TblName;
+                                    }                               
+                                }
+                            //код SQL создание таблицы и заполнение её данными
                             SQL_str = "create table " + MayBeName + " (";
                             for (int k = 0; k < strs.Length; k++)
                                 {                               
